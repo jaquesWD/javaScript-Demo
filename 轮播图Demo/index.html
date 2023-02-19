@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+  <div class="loopImgs">
+    <!-- 图片列表 -->
+
+    <ul class="imgsList">
+      <li><img src="img/1.jpg" alt=""></li>
+      <li><img src="img/2.jpg" alt=""></li>
+      <li><img src="img/3.jpg" alt=""></li>
+      <li><img src="img/4.jpg" alt=""></li>
+      <li><img src="img/5.jpg" alt=""></li>
+    </ul>
+
+    <!-- 原点列表 -->
+    <ul class="tabs">
+
+    </ul>
+
+    <button class="left btn">&larr;</button>
+    <button class="right btn">&rarr;</button>
+
+  </div>
+</body>
+
+</html>
+
+<script src="./animate.js"></script>
+<script>
+  // 1.获取元素
+
+  let box = document.querySelector('.loopImgs');
+  let imgsList = document.querySelector('.imgsList');
+  let lists = document.querySelectorAll('.imgsList li');
+
+  let tabs = document.querySelector('.tabs');
+
+  let left = document.querySelector(".left");
+  let right = document.querySelector(".right");
+
+  let num = 0;
+  let current = 0;
+  let listsWidth = lists[0].offsetWidth;
+  let show = null;
+
+  // 2.移入大图, 左右箭头显示
+  box.addEventListener('mouseenter', () => {
+    left.style.display = 'block';
+    right.style.display = 'block';
+  })
+
+  // 3.移出大图  左右箭头隐藏
+  box.addEventListener('mouseleave', () => {
+    left.style.display = 'none';
+    right.style.display = 'none';
+
+    show = setInterval(() => {
+      right.click();
+    }, 2000)
+  })
+
+  //动态生成第一个li节点
+  let first = lists[0].cloneNode(true);
+  imgsList.append(first);
+
+  // 4.动态生成小圆点的个数
+  for (let i = 0; i < lists.length; i++) {
+    let li = document.createElement('li');
+    li.style.borderColor = 'lightblue'
+    tabs.append(li)
+
+    // 5.添加默认选中样式
+    tabs.children[0].classList.add('actived');
+
+    // 6.给每一个圆点添加点击事件
+    for (let j = 0; j < tabs.children.length; j++) {
+      let tabsChild = tabs.children[j];
+
+      tabsChild.addEventListener('click', () => {
+        // 先清除
+        for (let k = 0; k < tabs.children.length; k++) {
+          tabs.children[k].classList.remove('actived');
+        }
+
+        // 清除之后再设置回去actived
+        tabsChild.classList.add('actived');
+
+        num = j;
+        current = j;
+
+        // 计算移动的距离
+        let target = -num * listsWidth;
+        buffer(imgsList, { left: target }, null);
+      })
+    }
+  }
+
+  // 7. 设置图片的宽度,切换不会出现白色
+  lists = document.querySelectorAll('.imgsList li');
+  imgsList.style.width = lists.length * listsWidth + 'px';
+
+  // 8.点击右侧按钮 图片切换
+  right.addEventListener('click', () => {
+    // 无缝连接实现
+
+    if (num === lists.length - 1) {
+      imgsList.style.left = 0;
+      num = 0;
+    }
+
+    num++;
+
+    buffer(imgsList, { left: -num * listsWidth }, null);
+
+    // 9. 点击右侧按钮 圆点显示当前
+    current++;
+    current = current % tabs.children.length;
+
+    for (let k = 0; k < tabs.children.length; k++) {
+      tabs.children[k].classList.remove('actived');
+    }
+
+    //给当前原点设置actived
+    tabs.children[current].classList.add('actived');
+  })
+
+  left.addEventListener('click', () => {
+    if (num === 0) {
+      num = lists.length - 1;
+      imgsList.style.left = -num * listsWidth + 'px';
+    }
+
+    num--;
+
+    buffer(imgsList, { left: -num * listsWidth }, null);
+
+    current--;
+
+    if (current < 0) {
+      current = tabs.children.length - 1;
+    }
+
+    for (let k = 0; k < tabs.children.length; k++) {
+      tabs.children[k].classList.remove('actived');
+    }
+
+    //给当前原点设置actived
+    tabs.children[current].classList.add('actived');
+  })
+
+  // 自动播放
+  show = setInterval(() => {
+    right.click();
+  }, 2000)
+</script>
